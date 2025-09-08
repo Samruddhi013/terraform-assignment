@@ -18,7 +18,7 @@ data "aws_internet_gateway" "existing" {
 # Create Public Subnet
 resource "aws_subnet" "public_subnet" {
   vpc_id                  = data.aws_vpc.existing.id
-  cidr_block              = "10.2.2.0/24" # Make sure this does not overlap with existing subnets
+  cidr_block              = "10.1.3.0/24" # Make sure this does not overlap with existing subnets
   availability_zone       = "ap-south-1b"
   map_public_ip_on_launch = true
 
