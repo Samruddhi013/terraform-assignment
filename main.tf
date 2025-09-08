@@ -10,22 +10,21 @@ data "aws_vpc" "existing" {
 # Create public subnet
 resource "aws_subnet" "public_subnet" {
   vpc_id                  = data.aws_vpc.existing.id
-  cidr_block              = "10.1.1.0/24"  # Unique subnet within VPC
-  availability_zone       = "ap-south-1a"
+  cidr_block              = "10.2.1.0/24"  # Unique subnet within VPC
+  availability_zone       = "ap-south-1b"
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "Public-Subnet"
+    Name = "Public-Subnet1"
   }
 }
 
 # Internet Gateway
-resource "aws_internet_gateway" "igw" {
-  vpc_id = data.aws_vpc.existing.id
-
-  tags = {
-    Name = "VPC-IGW"
-  }
+data "aws_internet_gateway" "existing" {
+  filter {
+    name   = "attachment.vpc-id"
+    values = [data.aws_vpc.existing.id]
+  }
 }
 
 # Route Table
@@ -34,11 +33,11 @@ resource "aws_route_table" "public_rt" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.igw.id
+    gateway_id = data.aws_internet_gateway.existing.id
   }
 
   tags = {
-    Name = "Public-RT"
+    Name = "Public-RT1"
   }
 }
 
@@ -50,7 +49,7 @@ resource "aws_route_table_association" "public_assoc" {
 
 # Security Group
 resource "aws_security_group" "terraform_app_sg" {
-  name   = "terraform-app-sg"
+  name   = "terraform-app-sg1"
   vpc_id = data.aws_vpc.existing.id
 
   ingress {
@@ -78,7 +77,7 @@ resource "aws_security_group" "terraform_app_sg" {
   }
 
   tags = {
-    Name = "Terraform-App-SG"
+    Name = "Terraform-App-SG1"
   }
 }
 
@@ -92,7 +91,7 @@ resource "aws_instance" "ec2" {
   associate_public_ip_address = true
 
   tags = {
-    Name = "terraform-EC2"
+    Name = "terraform-EC21"
   }
 }
 
