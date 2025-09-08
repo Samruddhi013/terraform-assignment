@@ -37,7 +37,7 @@ resource "aws_route_table" "public_rt" {
   }
 
   tags = {
-    Name = "Public-RT"
+    Name = "Public-RT1"
   }
 }
 
@@ -49,7 +49,7 @@ resource "aws_route_table_association" "public_assoc" {
 
 # Security Group
 resource "aws_security_group" "terraform_app_sg" {
-  name   = "terraform-app-sg"
+  name   = "terraform-app-sg1"
   vpc_id = data.aws_vpc.existing.id
 
   ingress {
@@ -77,7 +77,7 @@ resource "aws_security_group" "terraform_app_sg" {
   }
 
   tags = {
-    Name = "Terraform-App-SG"
+    Name = "Terraform-App-SG1"
   }
 }
 
@@ -91,7 +91,7 @@ resource "aws_instance" "ec2" {
   associate_public_ip_address = true
 
   tags = {
-    Name = "terraform-EC2"
+    Name = "terraform-EC23"
   }
 }
 
