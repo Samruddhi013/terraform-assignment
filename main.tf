@@ -7,10 +7,18 @@ data "aws_vpc" "existing" {
   id = "vpc-0381d63c0473f8775"
 }
 
-# Create public subnet
+# Get existing Internet Gateway in that VPC
+data "aws_internet_gateway" "existing" {
+  filter {
+    name   = "attachment.vpc-id"
+    values = [data.aws_vpc.existing.id]
+  }
+}
+
+# Create Public Subnet
 resource "aws_subnet" "public_subnet" {
   vpc_id                  = data.aws_vpc.existing.id
-  cidr_block              = "10.2.1.0/24"  # Unique subnet within VPC
+  cidr_block              = "10.2.1.0/24" # Make sure this does not overlap with existing subnets
   availability_zone       = "ap-south-1b"
   map_public_ip_on_launch = true
 
@@ -19,15 +27,7 @@ resource "aws_subnet" "public_subnet" {
   }
 }
 
-# Internet Gateway
-data "aws_internet_gateway" "existing" {
-  filter {
-    name   = "attachment.vpc-id"
-    values = [data.aws_vpc.existing.id]
-  }
-}
-
-# Route Table
+# Route Table (using existing IGW)
 resource "aws_route_table" "public_rt" {
   vpc_id = data.aws_vpc.existing.id
 
@@ -37,11 +37,11 @@ resource "aws_route_table" "public_rt" {
   }
 
   tags = {
-    Name = "Public-RT1"
+    Name = "Public-RT"
   }
 }
 
-# Associate Route Table with subnet
+# Associate Route Table with Subnet
 resource "aws_route_table_association" "public_assoc" {
   subnet_id      = aws_subnet.public_subnet.id
   route_table_id = aws_route_table.public_rt.id
@@ -49,7 +49,7 @@ resource "aws_route_table_association" "public_assoc" {
 
 # Security Group
 resource "aws_security_group" "terraform_app_sg" {
-  name   = "terraform-app-sg1"
+  name   = "terraform-app-sg"
   vpc_id = data.aws_vpc.existing.id
 
   ingress {
@@ -77,7 +77,7 @@ resource "aws_security_group" "terraform_app_sg" {
   }
 
   tags = {
-    Name = "Terraform-App-SG1"
+    Name = "Terraform-App-SG"
   }
 }
 
@@ -91,11 +91,11 @@ resource "aws_instance" "ec2" {
   associate_public_ip_address = true
 
   tags = {
-    Name = "terraform-EC21"
+    Name = "terraform-EC2"
   }
 }
 
-# Output public IP
+# Output EC2 Public IP
 output "ec2_public_ip" {
   value = aws_instance.ec2.public_ip
 }
